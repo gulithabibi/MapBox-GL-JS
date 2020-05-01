@@ -1,0 +1,117 @@
+<html>
+    <head>
+        <script src='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js'></script>
+        <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css' rel='stylesheet' />
+        <style>
+            body { margin: 0; padding: 0; }
+            #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+            .marker {display: block;border: none;border-radius: 50%;cursor: pointer;padding: 0;}
+        </style>
+    </head>
+    <body>
+        <div id='map'></div>
+    </body>
+</html>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZ3VsaXQiLCJhIjoiY2s5bnZ1OHNqMDQyNjNrbXI2cGx4bWF4YSJ9._mGxf8ozLpgiIH7s--Slow';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [101.2131,1.2596],
+        zoom:9
+    });
+
+    addMarkerStatic();
+    loadData();
+
+    function loadData(){
+
+        //this data u can get fom server
+        var data=[
+        {lng:101.05425,lat:0.160861111},
+        {lng:100.9246944,lat:0.580944444},
+        {lng:100.88825,lat:0.817138889},
+        {lng:100.7826111,lat:0.978388889},
+        {lng:100.5078889,lat:1.157},
+        {lng:100.4944167,lat:1.140611111},
+        {lng:100.7047778,lat:1.167333333}
+        ]
+
+        //Put data on the feature
+        var features=[];
+        jQuery.each(data,function(key,val){
+            var faeture={
+                'type': 'Feature',
+                'properties': {
+                    'message': 'Foo',
+                    'iconSize': [60, 60]
+                    },
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [val.lng, val.lat]
+                    }
+            }
+            features.push(faeture);
+        });
+
+        var geojson = {'type': 'FeatureCollection','features':features}
+
+        geojson.features.forEach(function(marker){
+            // create a DOM element for the marker
+            var el = document.createElement('div');
+            el.className = 'marker';
+            el.style.backgroundImage =
+            'url(https://upload.wikimedia.org/wikipedia/commons/6/65/Circle-icons-car.svg)';
+            el.style.width = marker.properties.iconSize[0] + 'px';
+            el.style.height = marker.properties.iconSize[1] + 'px';
+            
+            el.addEventListener('click', function() {
+                //window.alert(marker.properties.message);
+            });
+
+            //Create the popup
+            var popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                "<table><tr><td>"+marker.properties.message+"</td></tr></table>"
+                );
+
+            // add marker to map
+            new mapboxgl.Marker(el)
+            .setLngLat(marker.geometry.coordinates)
+            .setPopup(popup)
+            .addTo(map);
+        });
+
+        refresh();
+
+    }
+
+    function refresh(){
+        var timeout=setTimeout(() => {
+            loadData();
+            console.log("refresh");
+        }, 3600);
+    }
+
+    function addMarker(val){
+        var marker = new mapboxgl.Marker()
+                .setLngLat([val.lng, val.lat])
+                .addTo(map);
+    }
+    function addMarkerStatic(){
+        var data=[
+            {lng:101.1367,lat:1.355239},
+            {lng:101.4264,lat:0.4827},
+            {lng:106.740413,lat:-6.109064}
+        ];
+
+        jQuery.each(data,function(key,val){
+            var marker = new mapboxgl.Marker()
+                .setLngLat([val.lng, val.lat])
+                .addTo(map);
+        });
+    }
+
+
+</script>
